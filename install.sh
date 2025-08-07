@@ -16,8 +16,7 @@ create_symlinks() {
         ln -s $script_dir/$name ~/$name
     done
 }
-sudo apt-get update
-sudo apt-get install -y fzf
+
 wget https://github.com/robbyrussell/oh-my-zsh/raw/master/tools/install.sh -O - | zsh
 
 ### ZSH config
@@ -25,6 +24,12 @@ ZSH_CUSTOM="$HOME/.oh-my-zsh/custom"
 
 # remove the default zshrc
 rm -f ~/.zshrc
-
 create_symlinks
 
+# Install fzf from github and run install script
+if [ ! -d "$HOME/.fzf" ]; then
+    git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf
+fi
+~/.fzf/install --all
+
+source <(fzf --zsh)
