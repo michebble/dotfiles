@@ -16,44 +16,15 @@ create_symlinks() {
         ln -s $script_dir/$name ~/$name
     done
 }
+sudo apt-get update
+sudo apt-get install -y fzf
+wget https://github.com/robbyrussell/oh-my-zsh/raw/master/tools/install.sh -O - | zsh
+
+### ZSH config
+ZSH_CUSTOM="$HOME/.oh-my-zsh/custom"
+
+# remove the default zshrc
+rm -f ~/.zshrc
 
 create_symlinks
 
-install_fzf() {
-    if ! command -v fzf &> /dev/null; then
-        echo "Installing fzf..."
-        if [[ "$(uname)" == "Darwin" ]]; then
-            # On macOS, install with Homebrew
-            if command -v brew &> /dev/null; then
-                brew install fzf
-                # To install useful key bindings and fuzzy completion:
-                "$(brew --prefix)/opt/fzf/install" --all
-            else
-                echo "Warning: Homebrew is not installed. Cannot install fzf."
-                echo "Please install Homebrew or install fzf manually."
-            fi
-        else
-            # On Linux
-            if command -v apt-get &> /dev/null; then
-                # Debian/Ubuntu
-                sudo apt-get update
-                sudo apt-get install -y fzf
-            elif command -v apk &> /dev/null; then
-                # Alpine Linux
-                sudo apk add fzf
-            else
-                # Fallback to git clone for other Linux distributions
-                echo "Could not find apt-get or apk. Installing fzf from source."
-                git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf
-                ~/.fzf/install --all
-            fi
-        fi
-    else
-        echo "fzf is already installed."
-    fi
-}
-
-install_fzf
-
-
-source <(fzf --zsh)
