@@ -34,4 +34,5 @@ fi
 
 source <(fzf --zsh)
 
-git config --global core.hooksPath "$HOME/dotfiles/git-hooks"
+script_dir=$(dirname "$(readlink -f "$0")")
+git config --global core.hooksPath "$script_dir/dotfiles/git-hooks"
