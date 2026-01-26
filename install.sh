@@ -33,3 +33,5 @@ fi
 ~/.fzf/install --all
 
 source <(fzf --zsh)
+
+git config --global core.hooksPath "$HOME/dotfiles/git-hooks"

@@ -1,0 +1,50 @@
+#!/bin/bash
+
+# 1. Check if we are in the project root (look for Gemfile)
+if [ ! -f "Gemfile" ]; then
+  exit 0
+fi
+
+# 2. Check if RuboCop exists
+if ! bundle info rubocop > /dev/null 2>&1; then
+  echo "RuboCop not found. Skipping."
+  exit 0
+fi
+
+# 3. Get the list of staged files
+# We use 'diff-filter=ACM' to ignore deleted files
+diffs=$(git diff --cached --name-only --diff-filter=ACM | grep -E '\.(rb|rake|gemspec)|Rakefile|Gemfile|config.ru')
+
+if [ -z "$diffs" ]; then
+  exit 0
+fi
+
+echo "Running local pre-commit hook..."
+
+# 4. CRITICAL FIX: Split the string by newlines into a Bash Array
+# This ensures "app/models/user.rb" and "spec/models/user_spec.rb" are treated as two separate files.
+mapfile -t staged_files <<< "$diffs"
+
+# (Fallback for older Bash versions if 'mapfile' is missing)
+if [ ${#staged_files[@]} -eq 0 ]; then
+  IFS=$'\n' read -r -d '' -a staged_files <<< "$diffs"
+fi
+
+# 5. Debugging: Show exactly what files RuboCop will receive
+# If you see paths like "app/models/user.rb", that is correct relative to your current folder.
+echo "Linting these files:"
+printf ' - %s\n' "${staged_files[@]}"
+
+# 6. Run RuboCop
+# We use "${staged_files[@]}" (with quotes) to pass them as distinct arguments
+bundle exec rubocop --force-exclusion "${staged_files[@]}"
+
+exit_code=$?
+
+if [ $exit_code -ne 0 ]; then
+  echo "RuboCop found offenses. Commit aborted."
+  exit 1
+fi
+
+echo "RuboCop passed!"
+exit 0
