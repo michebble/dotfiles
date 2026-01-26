@@ -1,10 +1,10 @@
 #!/bin/bash
 
+# Get the directory in which this script lives.
+script_dir=$(dirname "$(readlink -f "$0")")
+
 # taken from https://bea.stollnitz.com/blog/codespaces-terminal/
 create_symlinks() {
-    # Get the directory in which this script lives.
-    script_dir=$(dirname "$(readlink -f "$0")")
-
     # Get a list of all files in this directory that start with a dot.
     files=$(find -maxdepth 1 -type f -name ".*")
 
@@ -34,5 +34,4 @@ fi
 
 source <(fzf --zsh)
 
-script_dir=$(dirname "$(readlink -f "$0")")
-git config --global core.hooksPath "$script_dir/dotfiles/git-hooks"
+git config --global core.hooksPath "$script_dir/git-hooks"
